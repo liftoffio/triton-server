@@ -90,6 +90,9 @@ struct Options {
   int infer_allocation_pool_size_{8};
   std::vector<ProtocolGroup> protocol_groups_{};
   std::string forward_header_pattern_;
+  int max_concurrent_streams_{0};
+  int resource_quota_max_threads_{0};
+  long resource_quota_max_size_{0};
 };
 
 class Server {

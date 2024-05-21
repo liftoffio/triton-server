@@ -279,6 +279,9 @@ enum TritonOptionId {
   OPTION_GRPC_ARG_HTTP2_MIN_RECV_PING_INTERVAL_WITHOUT_DATA_MS,
   OPTION_GRPC_ARG_HTTP2_MAX_PING_STRIKES,
   OPTION_GRPC_RESTRICTED_PROTOCOL,
+  OPTION_GRPC_RESOURCE_QUOTA_MAX_THREADS,
+  OPTION_GRPC_RESOURCE_QUOTA_MAX_SIZE,
+  OPTION_GRPC_ARG_MAX_CONCURRENT_STREAMS,
 #endif  // TRITON_ENABLE_GRPC
 #if defined(TRITON_ENABLE_SAGEMAKER)
   OPTION_ALLOW_SAGEMAKER,
@@ -529,6 +532,16 @@ TritonParser::SetupOptions()
        "<protocol> is a comma-separated list of protocols to be restricted. "
        "<key> will be additional header key to be checked when a GRPC request "
        "is received, and <value> is the value expected to be matched."});
+  grpc_options_.push_back(
+      {OPTION_GRPC_ARG_MAX_CONCURRENT_STREAMS, "grpc-max-concurrent-streams",
+       Option::ArgInt,
+       "Maximum number of concurrent incoming streams to allow on a http2 connection."});
+  grpc_options_.push_back(
+      {OPTION_GRPC_RESOURCE_QUOTA_MAX_SIZE, "grpc-resource-quota-max-memory-bytes",
+       Option::ArgInt, "Maximum memory usage by the gRPC server."});
+  grpc_options_.push_back(
+      {OPTION_GRPC_RESOURCE_QUOTA_MAX_THREADS, "grpc-resource-quota-max-threads",
+       Option::ArgInt, "Maximum number of threads used by the gRPC server."});
 #endif  // TRITON_ENABLE_GRPC
 
 #ifdef TRITON_ENABLE_LOGGING
@@ -1368,6 +1381,18 @@ TritonParser::Parse(int argc, char** argv)
       }
       case OPTION_GRPC_HEADER_FORWARD_PATTERN:
         lgrpc_options.forward_header_pattern_ = optarg;
+        break;
+      case OPTION_GRPC_ARG_MAX_CONCURRENT_STREAMS:
+        lgrpc_options.max_concurrent_streams_ =
+            ParseOption<int>(optarg);
+        break;
+      case OPTION_GRPC_RESOURCE_QUOTA_MAX_SIZE:
+        lgrpc_options.resource_quota_max_size_ =
+            ParseOption<long>(optarg);
+        break;
+      case OPTION_GRPC_RESOURCE_QUOTA_MAX_THREADS:
+        lgrpc_options.resource_quota_max_threads_ =
+            ParseOption<int>(optarg);
         break;
 #endif  // TRITON_ENABLE_GRPC
 

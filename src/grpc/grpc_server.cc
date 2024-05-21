@@ -2290,6 +2290,20 @@ Server::Server(
   builder_.AddChannelArgument(
       GRPC_ARG_ALLOW_REUSEPORT, options.socket_.reuse_port_);
 
+  if (options.max_concurrent_streams_ > 0) {
+    builder_.AddChannelArgument(
+        GRPC_ARG_MAX_CONCURRENT_STREAMS, options.max_concurrent_streams_);
+  }
+
+  ::grpc::ResourceQuota rq("triton");
+  if (options.resource_quota_max_size_ > 0) {
+    rq.Resize(options.resource_quota_max_size_);
+  }
+  if (options.resource_quota_max_threads_ > 0) {
+    rq.SetMaxThreads(options.resource_quota_max_threads_);
+  }
+  builder_.SetResourceQuota(rq);
+
   {
     // GRPC KeepAlive Docs:
     // https://grpc.github.io/grpc/cpp/md_doc_keepalive.html NOTE: In order to
